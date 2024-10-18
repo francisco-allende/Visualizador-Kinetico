@@ -1,34 +1,22 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   View,
   Text,
-  Image,
-  FlatList,
   StyleSheet,
   TouchableOpacity,
   ActivityIndicator,
   Modal,
-  Dimensions,
 } from 'react-native';
-import showToast from '../../functions/showToast';
 import firestore from '@react-native-firebase/firestore';
 import {useAuthContext} from '../../utils/auth.context';
 import GoBackScreen from '../../components/go-back';
 import imgManager from '../../functions/imgManager';
 import {AppColors} from '../../assets/styles/default-styles';
-import {useFocusEffect} from '@react-navigation/native';
 import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
-import {
-  faCamera,
-  faThumbsUp,
-  faChartPie,
-  faImages,
-} from '@fortawesome/free-solid-svg-icons';
+import {faCamera, faChartPie} from '@fortawesome/free-solid-svg-icons';
 import PhotoStats from '../stats/photo-stats';
-import {format} from 'date-fns';
 import SensorPhotoGallery from '../../components/sensor-gallery';
-
-const {width} = Dimensions.get('window');
+import showToast from '../../functions/showToast';
 
 const CosasLindasScreen = ({navigation}) => {
   const {user} = useAuthContext();
@@ -36,36 +24,33 @@ const CosasLindasScreen = ({navigation}) => {
   const [confirmedImages, setConfirmedImages] = useState([]);
   const [pendingImages, setPendingImages] = useState([]);
   const [showStats, setShowStats] = useState(false);
-  const [showGallery, setShowGallery] = useState(false);
 
-  useFocusEffect(
-    React.useCallback(() => {
-      const fetchImages = async () => {
-        try {
-          const confirmedSnapshot = await firestore()
-            .collection('photos')
-            .where('estado', '==', 'confirmada')
-            .where('tipo', '==', 'linda')
-            .orderBy('createdAt', 'desc')
-            .get();
+  useEffect(() => {
+    fetchImages();
+  }, []);
 
-          const confirmedImages = confirmedSnapshot.docs.map(doc => ({
-            id: doc.id,
-            ...doc.data(),
-          }));
+  const fetchImages = async () => {
+    try {
+      const confirmedSnapshot = await firestore()
+        .collection('photos')
+        .where('estado', '==', 'confirmada')
+        .where('tipo', '==', 'linda')
+        .orderBy('createdAt', 'desc')
+        .get();
 
-          setConfirmedImages(confirmedImages);
-          setPendingImages(imgManager.fotosTomadas);
-        } catch (error) {
-          console.error('Error fetching images: ', error);
-        } finally {
-          setLoading(false);
-        }
-      };
+      const confirmedImages = confirmedSnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
 
-      fetchImages();
-    }, []),
-  );
+      setConfirmedImages(confirmedImages);
+      setPendingImages(imgManager.fotosTomadas);
+    } catch (error) {
+      console.error('Error fetching images: ', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleConfirmImage = async () => {
     setLoading(true);
@@ -82,20 +67,7 @@ const CosasLindasScreen = ({navigation}) => {
       imgManager.clearPhotos();
       setPendingImages([]);
       showToast('success', 'Imágenes subidas con éxito', 3000);
-      // Actualizar la lista de imágenes confirmadas
-      const newConfirmedSnapshot = await firestore()
-        .collection('photos')
-        .where('estado', '==', 'confirmada')
-        .where('tipo', '==', 'linda')
-        .orderBy('createdAt', 'desc')
-        .get();
-
-      const newConfirmedImages = newConfirmedSnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-
-      setConfirmedImages(newConfirmedImages);
+      fetchImages();
     } catch (error) {
       console.error('Error confirming images: ', error);
       showToast('error', 'Error al subir las imágenes', 3000);
@@ -118,50 +90,10 @@ const CosasLindasScreen = ({navigation}) => {
     const success = await imgManager.voteForPhoto(photoId, user.uid);
     if (success) {
       showToast('success', 'Voto registrado con éxito', 2000);
-      // Actualizar la lista de imágenes para reflejar el nuevo voto
-      const updatedImages = confirmedImages.map(img =>
-        img.id === photoId ? {...img, votes: (img.votes || 0) + 1} : img,
-      );
-      setConfirmedImages(updatedImages);
+      fetchImages();
     } else {
       showToast('error', 'Ya votaste por esta foto', 2000);
     }
-  };
-
-  const renderImageItem = ({item}) => (
-    <View style={styles.imageContainer}>
-      <Image source={{uri: item.imageUrl}} style={styles.image} />
-      <View style={styles.imageInfo}>
-        <Text style={styles.userName}>{item.userName} subió esta foto</Text>
-        <Text style={styles.dateText}>
-          {format(item.createdAt.toDate(), 'dd/MM/yyyy HH:mm:ss')}
-        </Text>
-        <Text style={styles.voteCount}>Votos: {item.votes || 0}</Text>
-        <TouchableOpacity
-          style={styles.voteButton}
-          onPress={() => handleVote(item.id)}>
-          <FontAwesomeIcon
-            icon={faThumbsUp}
-            size={20}
-            color={AppColors.white}
-          />
-          <Text style={styles.voteButtonText}>Votar</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
-  );
-
-  const renderPendingImageItem = ({item}) => (
-    <View style={styles.pendingImageContainer}>
-      <Image
-        source={{uri: `file://${item.path}`}}
-        style={styles.pendingImage}
-      />
-    </View>
-  );
-
-  const toggleGallery = () => {
-    setShowGallery(!showGallery);
   };
 
   if (loading) {
@@ -174,22 +106,67 @@ const CosasLindasScreen = ({navigation}) => {
 
   return (
     <View style={styles.container}>
-      <GoBackScreen />
-      <Text style={styles.title}>Cosas Lindas</Text>
+      <View style={styles.header}>
+        <GoBackScreen />
+        <TouchableOpacity
+          onPress={() => setShowStats(true)}
+          style={styles.statsIcon}>
+          <FontAwesomeIcon
+            icon={faChartPie}
+            size={24}
+            color={AppColors.white}
+          />
+        </TouchableOpacity>
+      </View>
+      <View style={styles.content}>
+        {pendingImages.length > 0 ? (
+          <>
+            <Text style={styles.previewTitle}>Vista previa</Text>
+            {/* Aquí iría el renderizado de imágenes pendientes */}
+            <View style={styles.buttonContainer}>
+              <TouchableOpacity
+                style={styles.confirmButton}
+                onPress={handleConfirmImage}>
+                <Text style={styles.buttonText}>Confirmar</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.rejectButton}
+                onPress={handleRejectImage}>
+                <Text style={styles.buttonText}>Rechazar</Text>
+              </TouchableOpacity>
+            </View>
+          </>
+        ) : (
+          <>
+            {confirmedImages.length > 0 ? (
+              <SensorPhotoGallery
+                photos={confirmedImages}
+                onVote={handleVote}
+              />
+            ) : (
+              <Text style={styles.noImagesText}>
+                ¡Sé el primero en subir una cosa linda!
+              </Text>
+            )}
+          </>
+        )}
+      </View>
 
-      <TouchableOpacity style={styles.galleryButton} onPress={toggleGallery}>
-        <FontAwesomeIcon icon={faImages} size={24} color={AppColors.white} />
-        <Text style={styles.galleryButtonText}>Ver Galería</Text>
-      </TouchableOpacity>
+      {pendingImages.length === 0 && (
+        <TouchableOpacity style={styles.takePhotoButton} onPress={handleCamera}>
+          <FontAwesomeIcon icon={faCamera} size={24} color={AppColors.white} />
+        </TouchableOpacity>
+      )}
 
-      <TouchableOpacity style={styles.cameraButton} onPress={handleCamera}>
-        <FontAwesomeIcon icon={faCamera} size={24} color={AppColors.white} />
-      </TouchableOpacity>
-
-      <Modal visible={showGallery} animationType="slide">
-        <SensorPhotoGallery photos={confirmedImages} onVote={handleVote} />
-        <TouchableOpacity style={styles.closeButton} onPress={toggleGallery}>
-          <Text style={styles.closeButtonText}>Cerrar</Text>
+      <Modal
+        visible={showStats}
+        animationType="slide"
+        onRequestClose={() => setShowStats(false)}>
+        <PhotoStats type="linda" />
+        <TouchableOpacity
+          style={styles.closeStatsButton}
+          onPress={() => setShowStats(false)}>
+          <Text style={styles.closeStatsButtonText}>Cerrar</Text>
         </TouchableOpacity>
       </Modal>
     </View>
@@ -199,7 +176,7 @@ const CosasLindasScreen = ({navigation}) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#120E29', // Fondo oscuro similar al login
+    backgroundColor: '#120E29',
   },
   header: {
     flexDirection: 'row',
@@ -208,18 +185,51 @@ const styles = StyleSheet.create({
     padding: 10,
     backgroundColor: AppColors.purple,
   },
-  title: {
+  content: {
+    flex: 1,
+    padding: 10,
+  },
+  previewTitle: {
     fontSize: 24,
     fontWeight: 'bold',
     color: AppColors.white,
     textAlign: 'center',
     marginVertical: 20,
   },
-  content: {
-    flex: 1,
-    padding: 10,
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginVertical: 10,
+    color: AppColors.white,
+    textAlign: 'center',
   },
-  cameraButton: {
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    paddingBottom: 20,
+  },
+  confirmButton: {
+    flex: 1,
+    backgroundColor: AppColors.success,
+    padding: 15,
+    borderRadius: 10,
+    marginRight: 10,
+  },
+  rejectButton: {
+    flex: 1,
+    backgroundColor: AppColors.danger,
+    padding: 15,
+    borderRadius: 10,
+    marginLeft: 10,
+  },
+  buttonText: {
+    color: AppColors.white,
+    fontSize: 18,
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  takePhotoButton: {
     position: 'absolute',
     bottom: 20,
     right: 20,
@@ -232,38 +242,26 @@ const styles = StyleSheet.create({
     elevation: 5,
     zIndex: 1,
   },
-  galleryButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: AppColors.purple,
-    padding: 10,
-    borderRadius: 10,
-    marginHorizontal: 20,
-    marginBottom: 20,
-  },
-  galleryButtonText: {
-    color: AppColors.white,
-    marginLeft: 10,
-    fontSize: 18,
-  },
-  closeButton: {
-    position: 'absolute',
-    top: 40,
-    right: 20,
-    backgroundColor: AppColors.purple,
-    padding: 10,
-    borderRadius: 5,
-  },
-  closeButtonText: {
-    color: AppColors.white,
-    fontSize: 16,
-  },
   noImagesText: {
     color: AppColors.white,
     fontSize: 16,
     textAlign: 'center',
     marginTop: 20,
+  },
+  statsIcon: {
+    padding: 10,
+  },
+  closeStatsButton: {
+    position: 'absolute',
+    bottom: 20,
+    alignSelf: 'center',
+    backgroundColor: AppColors.purple,
+    padding: 10,
+    borderRadius: 5,
+  },
+  closeStatsButtonText: {
+    color: AppColors.white,
+    fontSize: 16,
   },
   loaderContainer: {
     flex: 1,

@@ -1,12 +1,13 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useMemo} from 'react';
 import {
   View,
   Image,
   StyleSheet,
   Dimensions,
   Text,
-  ActivityIndicator,
   TouchableOpacity,
+  ActivityIndicator,
+  SafeAreaView,
 } from 'react-native';
 import {useOrientation} from './useOrientation';
 import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
@@ -36,10 +37,6 @@ const SensorPhotoGallery = ({photos, onVote}) => {
         setIsLoading(true);
         setCurrentIndex(prevIndex => (prevIndex + 1) % photos.length);
         break;
-      case 'horizontal':
-        setIsLoading(true);
-        setCurrentIndex(0);
-        break;
     }
 
     setLastOrientation(orientation);
@@ -55,8 +52,45 @@ const SensorPhotoGallery = ({photos, onVote}) => {
     }
   };
 
+  const getImageContainerStyle = useMemo(() => {
+    const isPortrait = orientation === 'vertical';
+    return {
+      flex: isPortrait ? 0.8 : 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      overflow: 'hidden', // Oculta cualquier contenido que se salga del contenedor
+      width: '100%', // Asegura que el contenedor ocupe todo el ancho disponible
+    };
+  }, [orientation]);
+
+  const getImageStyle = useMemo(() => {
+    const isPortrait = orientation === 'vertical';
+    return {
+      width: isPortrait ? width * 0.9 : width,
+      height: isPortrait ? height : height,
+      resizeMode: isPortrait ? 'contain' : 'cover',
+    };
+  }, [orientation]);
+
+  const getInfoContainerStyle = useMemo(() => {
+    const isPortrait = orientation === 'vertical';
+    return {
+      position: 'absolute',
+      bottom: 0,
+      left: 6,
+      right: 6,
+      backgroundColor: isPortrait ? 'rgba(0, 0, 0, 0.7)' : 'transparent',
+      padding: 15,
+    };
+  }, [orientation]);
+
+  if (photos.length === 0) {
+    return null;
+  }
+
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
+      <Text style={styles.title}>Galería fotos lindas</Text>
       {isLoading && (
         <View style={styles.loaderContainer}>
           <ActivityIndicator size="large" color="#FFFFFF" />
@@ -64,13 +98,15 @@ const SensorPhotoGallery = ({photos, onVote}) => {
       )}
       {photos[currentIndex] && (
         <>
-          <Image
-            source={{uri: photos[currentIndex].imageUrl}}
-            style={[styles.image, isLoading ? styles.hiddenImage : null]}
-            resizeMode="contain"
-            onLoad={handleImageLoad}
-          />
-          <View style={styles.infoContainer}>
+          <View style={getImageContainerStyle}>
+            <Image
+              source={{uri: photos[currentIndex].imageUrl}}
+              style={[getImageStyle, isLoading ? styles.hiddenImage : null]}
+              resizeMode="contain"
+              onLoad={handleImageLoad}
+            />
+          </View>
+          <View style={getInfoContainerStyle}>
             <Text style={styles.userName}>
               {photos[currentIndex].userName} subió esta foto
             </Text>
@@ -94,34 +130,24 @@ const SensorPhotoGallery = ({photos, onVote}) => {
           </View>
         </>
       )}
-      <Text style={styles.orientationInfo}>
-        Orientación: {orientation} | Foto: {currentIndex + 1}/{photos.length}
-      </Text>
-    </View>
+    </SafeAreaView>
   );
 };
-
+// Styles
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#000',
+    backgroundColor: '#120E29',
   },
-  image: {
-    width: width,
-    height: height * 0.7,
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: AppColors.white,
+    textAlign: 'center',
+    marginVertical: 10,
   },
   hiddenImage: {
     opacity: 0,
-  },
-  infoContainer: {
-    position: 'absolute',
-    bottom: 60,
-    left: 0,
-    right: 0,
-    backgroundColor: 'transparent',
-    padding: 15,
   },
   userName: {
     color: AppColors.white,
@@ -152,17 +178,11 @@ const styles = StyleSheet.create({
     marginLeft: 10,
     fontSize: 16,
   },
-  orientationInfo: {
-    position: 'absolute',
-    bottom: 20,
-    color: '#fff',
-    fontSize: 14,
-  },
   loaderContainer: {
     ...StyleSheet.absoluteFillObject,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#000',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
 });
 
