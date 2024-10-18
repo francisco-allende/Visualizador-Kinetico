@@ -21,15 +21,17 @@ const SensorPhotoGallery = ({photos}) => {
     if (isInitialRender || orientation === lastOrientation) return;
 
     switch (orientation) {
-      case 'leftTilt':
-        setIsLoading(true);
-        setCurrentIndex(prevIndex => (prevIndex + 1) % photos.length);
-        break;
       case 'rightTilt':
         setIsLoading(true);
+        // Cambio aquí: ahora va a la foto anterior
         setCurrentIndex(
           prevIndex => (prevIndex - 1 + photos.length) % photos.length,
         );
+        break;
+      case 'leftTilt':
+        setIsLoading(true);
+        // Cambio aquí: ahora va a la siguiente foto
+        setCurrentIndex(prevIndex => (prevIndex + 1) % photos.length);
         break;
       case 'horizontal':
         setIsLoading(true);
@@ -59,7 +61,9 @@ const SensorPhotoGallery = ({photos}) => {
           onLoad={handleImageLoad}
         />
       )}
-      <Text style={styles.infoText}>Orientación: {orientation}</Text>
+      <Text style={styles.infoText}>
+        Orientación: {orientation} | Foto: {currentIndex + 1}/{photos.length}
+      </Text>
     </View>
   );
 };
