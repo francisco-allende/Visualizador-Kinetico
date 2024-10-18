@@ -6,6 +6,9 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   Modal,
+  FlatList,
+  Image,
+  Dimensions,
 } from 'react-native';
 import firestore from '@react-native-firebase/firestore';
 import {useAuthContext} from '../../utils/auth.context';
@@ -17,6 +20,9 @@ import {faCamera, faChartPie} from '@fortawesome/free-solid-svg-icons';
 import PhotoStats from '../stats/photo-stats';
 import SensorPhotoGallery from '../../components/sensor-gallery';
 import showToast from '../../functions/showToast';
+import {useFocusEffect} from '@react-navigation/native';
+
+const {width} = Dimensions.get('window');
 
 const CosasLindasScreen = ({navigation}) => {
   const {user} = useAuthContext();
@@ -25,9 +31,34 @@ const CosasLindasScreen = ({navigation}) => {
   const [pendingImages, setPendingImages] = useState([]);
   const [showStats, setShowStats] = useState(false);
 
-  useEffect(() => {
-    fetchImages();
-  }, []);
+  useFocusEffect(
+    React.useCallback(() => {
+      const fetchImagesCallBack = async () => {
+        try {
+          const confirmedSnapshot = await firestore()
+            .collection('photos')
+            .where('estado', '==', 'confirmada')
+            .where('tipo', '==', 'linda')
+            .orderBy('createdAt', 'desc')
+            .get();
+
+          const confirmedImages = confirmedSnapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data(),
+          }));
+
+          setConfirmedImages(confirmedImages);
+          setPendingImages(imgManager.fotosTomadas);
+        } catch (error) {
+          console.error('Error fetching images: ', error);
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      fetchImagesCallBack();
+    }, []),
+  );
 
   const fetchImages = async () => {
     try {
@@ -96,6 +127,15 @@ const CosasLindasScreen = ({navigation}) => {
     }
   };
 
+  const renderPendingImageItem = ({item}) => (
+    <View style={styles.pendingImageContainer}>
+      <Image
+        source={{uri: `file://${item.path}`}}
+        style={styles.pendingImage}
+      />
+    </View>
+  );
+
   if (loading) {
     return (
       <View style={styles.loaderContainer}>
@@ -122,7 +162,13 @@ const CosasLindasScreen = ({navigation}) => {
         {pendingImages.length > 0 ? (
           <>
             <Text style={styles.previewTitle}>Vista previa</Text>
-            {/* Aquí iría el renderizado de imágenes pendientes */}
+            <FlatList
+              data={pendingImages}
+              renderItem={renderPendingImageItem}
+              keyExtractor={(item, index) => `pending-${index}`}
+              style={styles.previewList}
+              contentContainerStyle={styles.previewListContent}
+            />
             <View style={styles.buttonContainer}>
               <TouchableOpacity
                 style={styles.confirmButton}
@@ -268,6 +314,15 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#120E29',
+  },
+  pendingImageContainer: {
+    width: '100%',
+    marginBottom: 20,
+  },
+  pendingImage: {
+    width: '100%',
+    height: width * 0.6,
+    borderRadius: 10,
   },
 });
 
