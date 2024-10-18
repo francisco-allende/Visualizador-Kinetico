@@ -186,7 +186,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: AppColors.purple,
+    backgroundColor: AppColors.primary,
   },
   title: {
     fontSize: 20,

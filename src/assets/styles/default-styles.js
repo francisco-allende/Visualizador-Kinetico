@@ -1,26 +1,24 @@
 import {StyleSheet, Dimensions} from 'react-native';
 
 const AppColors = {
-  primary: '#007bff',
-  secondary: '#6c757d',
-  success: '#28a745',
-  info: '#17a2b8',
-  danger: '#dc3545',
-  warning: '#ffc107',
-  light: '#f8f9fa',
-  darklight: '#cccccc',
-  dark: '#343a40',
-  muted: '#6c757d',
-  purple: '#1A1A40',
-  pink: '#CE69D6',
-  white: '#ffffff',
-  orange: '#FFA500',
-  yellow: '#FFFF00',
-  darkBackground: '#1A1A2E', // Un azul muy oscuro, casi negro
-  headerBackground: '#16213E', // Un azul oscuro para el header
-  buttonTextShadow: 'rgba(0, 0, 0, 0.75)', // Color para la sombra del texto en los botones
-  cosasLindasAccent: '#4DAA57', // Un verde suave para acentuar elementos relacionados con cosas lindas
-  cosasFeasAccent: '#D64045',
+  primary: '#3F51B5', // Índigo
+  secondary: '#FF6F00', // Naranja ámbar (color contrastante)
+  success: '#00C853', // Verde brillante
+  info: '#00B8D4', // Azul claro
+  danger: '#D50000', // Rojo brillante
+  warning: '#FFD600', // Amarillo brillante
+  light: '#E8EAF6', // Índigo muy claro
+  darklight: '#7986CB', // Índigo medio
+  dark: '#1A237E', // Índigo muy oscuro
+  muted: '#C5CAE9', // Índigo claro
+  white: '#FFFFFF',
+  black: '#000000',
+  background: '#0A0F3D', // Índigo casi negro (fondo principal)
+  cardBackground: '#1A237E', // Índigo muy oscuro (fondo de tarjetas)
+  textPrimary: '#FFFFFF', // Blanco (texto principal)
+  textSecondary: '#B0BEC5', // Gris azulado claro (texto secundario)
+  accent: '#FFA000',
+  darkGreen: '#1B5E20',
 };
 
 const AppBg = StyleSheet.create({

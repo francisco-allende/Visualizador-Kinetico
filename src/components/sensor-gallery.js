@@ -17,7 +17,7 @@ import {AppColors} from '../assets/styles/default-styles';
 
 const {width, height} = Dimensions.get('window');
 
-const SensorPhotoGallery = ({photos, onVote}) => {
+const SensorPhotoGallery = ({photos, onVote, text}) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const {orientation, isInitialRender} = useOrientation();
@@ -95,8 +95,15 @@ const SensorPhotoGallery = ({photos, onVote}) => {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
-      <Text style={styles.title}>Galería fotos lindas</Text>
+    <SafeAreaView
+      style={[
+        styles.container,
+        {
+          backgroundColor:
+            text == 'Cosas Lindas' ? AppColors.primary : AppColors.darkGreen,
+        },
+      ]}>
+      <Text style={styles.title}>Galería {text}</Text>
       {isLoading && (
         <View style={styles.loaderContainer}>
           <ActivityIndicator size="large" color="#FFFFFF" />
@@ -143,14 +150,20 @@ const SensorPhotoGallery = ({photos, onVote}) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#120E29',
   },
   title: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: 'bold',
-    color: AppColors.white,
+    color: AppColors.secondary,
     textAlign: 'center',
     marginVertical: 10,
+    textShadowColor: 'rgba(0, 0, 0, 1)',
+    textShadowOffset: {width: 0, height: 0},
+    textShadowRadius: 5,
+    // Añadimos múltiples sombras para crear un efecto de contorno
+    textShadowOffset: {width: 0, height: 0},
+    textShadowColor: '#000',
+    textShadowRadius: 1,
   },
   hiddenImage: {
     opacity: 0,
@@ -173,7 +186,7 @@ const styles = StyleSheet.create({
   voteButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: AppColors.purple,
+    backgroundColor: AppColors.secondary,
     padding: 10,
     borderRadius: 5,
     marginTop: 10,

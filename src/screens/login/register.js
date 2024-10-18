@@ -37,7 +37,7 @@ const RegisterScreen = ({navigation}) => {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.iconContainer}>
-        <FontAwesomeIcon icon={faUser} size={60} color={AppColors.white} />
+        <FontAwesomeIcon icon={faUser} size={80} color={AppColors.white} />
       </View>
       <View style={styles.form}>
         <Text style={styles.title}>Crear Usuario</Text>
@@ -47,7 +47,7 @@ const RegisterScreen = ({navigation}) => {
             value={email}
             onChangeText={setEmail}
             placeholder="Tu nombre de usuario"
-            placeholderTextColor={AppColors.darklight}
+            placeholderTextColor={AppColors.lightgray}
             style={styles.inputStyle}
           />
         </View>
@@ -57,7 +57,7 @@ const RegisterScreen = ({navigation}) => {
             value={password}
             onChangeText={setPassword}
             placeholder="Contraseña"
-            placeholderTextColor={AppColors.darklight}
+            placeholderTextColor={AppColors.lightgray}
             style={styles.inputStyle}
             secureTextEntry={showPasswordValue}
           />
@@ -66,21 +66,21 @@ const RegisterScreen = ({navigation}) => {
             onPress={() => setShowPasswordValue(!showPasswordValue)}>
             <FontAwesomeIcon
               icon={faEyeSlash}
-              style={{color: AppColors.darklight}}
+              style={{color: AppColors.lightgray}}
               size={25}
             />
           </TouchableOpacity>
         </View>
 
         <TouchableOpacity
-          style={[styles.button, AppButton.purple]}
+          style={styles.button}
           onPress={handleRegister}
           disabled={isLoading}>
           <Text style={styles.buttonText}>Crear</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={[styles.button, AppButton.purple]}
+          style={[styles.button, styles.secondaryButton]}
           onPress={() => navigation.navigate('Login')}
           disabled={isLoading}>
           <Text style={styles.buttonText}>Volver</Text>
@@ -93,47 +93,55 @@ const RegisterScreen = ({navigation}) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1A1A40',
+    backgroundColor: AppColors.primary,
   },
   iconContainer: {
     alignItems: 'center',
     justifyContent: 'center',
-    height: 150,
-    backgroundColor: '#3F3C9B',
+    height: 180,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
   },
   form: {
     flex: 1,
     paddingHorizontal: 30,
-    paddingTop: 30,
+    paddingTop: 40,
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    borderTopLeftRadius: 30,
+    borderTopRightRadius: 30,
   },
   title: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: 'bold',
     color: AppColors.white,
     textAlign: 'center',
-    marginBottom: 30,
+    marginBottom: 40,
   },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     borderBottomWidth: 1,
-    borderColor: AppColors.darklight,
-    marginBottom: 20,
+    borderColor: AppColors.lightgray,
+    marginBottom: 25,
   },
   inputStyle: {
     flex: 1,
     color: AppColors.white,
     fontSize: 18,
-    paddingVertical: 10,
+    paddingVertical: 12,
   },
   btnShowPassword: {
     padding: 10,
   },
   button: {
-    marginTop: 10,
+    backgroundColor: AppColors.secondary,
+    marginTop: 20,
     padding: 15,
-    borderRadius: 10,
+    borderRadius: 25,
     alignItems: 'center',
+  },
+  secondaryButton: {
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    marginTop: 15,
   },
   buttonText: {
     color: AppColors.white,

@@ -1,30 +1,26 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   View,
   Text,
-  Image,
-  FlatList,
   StyleSheet,
   TouchableOpacity,
   ActivityIndicator,
   Modal,
+  FlatList,
+  Image,
   Dimensions,
 } from 'react-native';
-import showToast from '../../functions/showToast';
 import firestore from '@react-native-firebase/firestore';
 import {useAuthContext} from '../../utils/auth.context';
 import GoBackScreen from '../../components/go-back';
 import imgManager from '../../functions/imgManager';
 import {AppColors} from '../../assets/styles/default-styles';
-import {useFocusEffect} from '@react-navigation/native';
 import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
-import {
-  faCamera,
-  faThumbsDown,
-  faChartBar,
-} from '@fortawesome/free-solid-svg-icons';
+import {faCamera, faBarChart} from '@fortawesome/free-solid-svg-icons';
 import PhotoStats from '../stats/photo-stats';
-import {format} from 'date-fns';
+import SensorPhotoGallery from '../../components/sensor-gallery';
+import showToast from '../../functions/showToast';
+import {useFocusEffect} from '@react-navigation/native';
 
 const {width} = Dimensions.get('window');
 
@@ -37,7 +33,7 @@ const CosasFeasScreen = ({navigation}) => {
 
   useFocusEffect(
     React.useCallback(() => {
-      const fetchImages = async () => {
+      const fetchImagesCallBack = async () => {
         try {
           const confirmedSnapshot = await firestore()
             .collection('photos')
@@ -60,9 +56,32 @@ const CosasFeasScreen = ({navigation}) => {
         }
       };
 
-      fetchImages();
+      fetchImagesCallBack();
     }, []),
   );
+
+  const fetchImages = async () => {
+    try {
+      const confirmedSnapshot = await firestore()
+        .collection('photos')
+        .where('estado', '==', 'confirmada')
+        .where('tipo', '==', 'fea')
+        .orderBy('createdAt', 'desc')
+        .get();
+
+      const confirmedImages = confirmedSnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+
+      setConfirmedImages(confirmedImages);
+      setPendingImages(imgManager.fotosTomadas);
+    } catch (error) {
+      console.error('Error fetching images: ', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleConfirmImage = async () => {
     setLoading(true);
@@ -79,20 +98,7 @@ const CosasFeasScreen = ({navigation}) => {
       imgManager.clearPhotos();
       setPendingImages([]);
       showToast('success', 'Imágenes subidas con éxito', 3000);
-      // Actualizar la lista de imágenes confirmadas
-      const newConfirmedSnapshot = await firestore()
-        .collection('photos')
-        .where('estado', '==', 'confirmada')
-        .where('tipo', '==', 'fea')
-        .orderBy('createdAt', 'desc')
-        .get();
-
-      const newConfirmedImages = newConfirmedSnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-
-      setConfirmedImages(newConfirmedImages);
+      fetchImages();
     } catch (error) {
       console.error('Error confirming images: ', error);
       showToast('error', 'Error al subir las imágenes', 3000);
@@ -115,42 +121,18 @@ const CosasFeasScreen = ({navigation}) => {
     const success = await imgManager.voteForPhoto(photoId, user.uid);
     if (success) {
       showToast('success', 'Voto registrado con éxito', 2000);
-      // Actualizar la lista de imágenes para reflejar el nuevo voto
-      const updatedImages = confirmedImages.map(img =>
-        img.id === photoId ? {...img, votes: (img.votes || 0) + 1} : img,
-      );
-      setConfirmedImages(updatedImages);
+      fetchImages();
     } else {
       showToast('error', 'Ya votaste por esta foto', 2000);
     }
   };
 
-  const renderImageItem = ({item}) => (
-    <View style={styles.imageContainer}>
-      <Image source={{uri: item.imageUrl}} style={styles.image} />
-      <View style={styles.imageInfo}>
-        <Text style={styles.userName}>{item.userName} subió esta foto</Text>
-        <Text style={styles.dateText}>
-          {format(item.createdAt.toDate(), 'dd/MM/yyyy HH:mm:ss')}
-        </Text>
-        <Text style={styles.voteCount}>Votos: {item.votes || 0}</Text>
-        <TouchableOpacity
-          style={styles.voteButton}
-          onPress={() => handleVote(item.id)}>
-          <FontAwesomeIcon
-            icon={faThumbsDown}
-            size={20}
-            color={AppColors.white}
-          />
-          <Text style={styles.voteButtonText}>Votar</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
-  );
-
   const renderPendingImageItem = ({item}) => (
-    <View style={styles.imageContainer}>
-      <Image source={{uri: `file://${item.path}`}} style={styles.image} />
+    <View style={styles.pendingImageContainer}>
+      <Image
+        source={{uri: `file://${item.path}`}}
+        style={styles.pendingImage}
+      />
     </View>
   );
 
@@ -170,7 +152,7 @@ const CosasFeasScreen = ({navigation}) => {
           onPress={() => setShowStats(true)}
           style={styles.statsIcon}>
           <FontAwesomeIcon
-            icon={faChartBar}
+            icon={faBarChart}
             size={24}
             color={AppColors.white}
           />
@@ -202,13 +184,11 @@ const CosasFeasScreen = ({navigation}) => {
           </>
         ) : (
           <>
-            <Text style={styles.sectionTitle}>Imágenes Confirmadas</Text>
             {confirmedImages.length > 0 ? (
-              <FlatList
-                data={confirmedImages}
-                renderItem={renderImageItem}
-                keyExtractor={item => item.id}
-                style={styles.confirmedList}
+              <SensorPhotoGallery
+                text={'Cosas Feas'}
+                photos={confirmedImages}
+                onVote={handleVote}
               />
             ) : (
               <Text style={styles.noImagesText}>
@@ -243,14 +223,14 @@ const CosasFeasScreen = ({navigation}) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#2C2C2C', // Fondo más oscuro para cosas feas
+    backgroundColor: AppColors.darkGreen,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: 10,
-    backgroundColor: AppColors.darkgray,
+    backgroundColor: AppColors.secondary,
   },
   content: {
     flex: 1,
@@ -259,7 +239,7 @@ const styles = StyleSheet.create({
   previewTitle: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: AppColors.lightgray,
+    color: AppColors.white,
     textAlign: 'center',
     marginVertical: 20,
   },
@@ -267,68 +247,8 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     marginVertical: 10,
-    color: AppColors.lightgray,
-  },
-  previewList: {
-    flex: 1,
-  },
-  previewListContent: {
-    paddingBottom: 20,
-  },
-  pendingImageContainer: {
-    width: '100%',
-    marginBottom: 20,
-  },
-  pendingImage: {
-    width: '100%',
-    height: width * 0.6,
-    borderRadius: 10,
-  },
-  confirmedList: {
-    flex: 1,
-  },
-  imageContainer: {
-    marginBottom: 20,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    borderRadius: 10,
-    overflow: 'hidden',
-  },
-  image: {
-    width: '100%',
-    height: width * 0.6,
-    borderTopLeftRadius: 10,
-    borderTopRightRadius: 10,
-  },
-  imageInfo: {
-    padding: 10,
-  },
-  userName: {
-    color: AppColors.lightgray,
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  dateText: {
-    color: AppColors.lightgray,
-    fontSize: 14,
-    marginTop: 5,
-  },
-  voteCount: {
-    color: AppColors.lightgray,
-    fontSize: 14,
-    marginTop: 5,
-  },
-  voteButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: AppColors.darkgray,
-    padding: 10,
-    borderRadius: 5,
-    marginTop: 10,
-  },
-  voteButtonText: {
     color: AppColors.white,
-    marginLeft: 10,
-    fontSize: 16,
+    textAlign: 'center',
   },
   buttonContainer: {
     flexDirection: 'row',
@@ -338,14 +258,14 @@ const styles = StyleSheet.create({
   },
   confirmButton: {
     flex: 1,
-    backgroundColor: 'rgba(40, 167, 69, 0.7)', // Verde apagado
+    backgroundColor: AppColors.success,
     padding: 15,
     borderRadius: 10,
     marginRight: 10,
   },
   rejectButton: {
     flex: 1,
-    backgroundColor: 'rgba(220, 53, 69, 0.7)', // Rojo apagado
+    backgroundColor: AppColors.secondary,
     padding: 15,
     borderRadius: 10,
     marginLeft: 10,
@@ -360,7 +280,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 20,
     right: 20,
-    backgroundColor: '#1A1A1A', // Gris oscuro fijo
+    backgroundColor: AppColors.secondary,
     width: 60,
     height: 60,
     borderRadius: 30,
@@ -368,11 +288,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     elevation: 5,
     zIndex: 1,
-    borderWidth: 2,
-    borderColor: AppColors.black, // Mantenemos el borde negro
   },
   noImagesText: {
-    color: AppColors.lightgray,
+    color: AppColors.white,
     fontSize: 16,
     textAlign: 'center',
     marginTop: 20,
@@ -384,7 +302,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 20,
     alignSelf: 'center',
-    backgroundColor: AppColors.darkgray,
+    backgroundColor: AppColors.secondary,
     padding: 10,
     borderRadius: 5,
   },
@@ -396,18 +314,16 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#2C2C2C', // Fondo gris oscuro
+    backgroundColor: AppColors.cardBackground,
   },
-  previewDateText: {
-    color: AppColors.lightgray,
-    fontSize: 12,
-    marginTop: 5,
-    textAlign: 'center',
+  pendingImageContainer: {
+    width: '100%',
+    marginBottom: 20,
   },
-  dateText: {
-    color: AppColors.lightgray,
-    fontSize: 14,
-    marginTop: 5,
+  pendingImage: {
+    width: '100%',
+    height: width * 0.6,
+    borderRadius: 10,
   },
 });
 

@@ -37,7 +37,6 @@ const LoginScreen = ({navigation}) => {
     navigation,
   );
 
-  //Manejo de teclado
   useEffect(() => {
     const showSubscription = Keyboard.addListener(
       'keyboardDidShow',
@@ -57,11 +56,9 @@ const LoginScreen = ({navigation}) => {
   const _keyboardDidShow = () => setKeyboardShown(true);
   const _keyboardDidHide = () => setKeyboardShown(false);
 
-  // Validación de email y contraseña
   const isValidEmail = email => /\S+@\S+\.\S+/.test(email);
   const isValidPassword = password => password.length >= 6;
 
-  // Lógica de autenticación
   const handleLogin = async isEasyLogin => {
     if (!isValidEmail(email)) {
       showToast('error', 'Por favor, ingresa un email válido.', 5000);
@@ -87,14 +84,15 @@ const LoginScreen = ({navigation}) => {
 
   return (
     <View onPress={() => Keyboard.dismiss} style={styles.container}>
-      <View style={[styles.titleContainer]}>
+      <View style={styles.titleContainer}>
         <ImageBackground
-          style={{width: '100%', height: 220, transform: [{scaleX: 0.5}]}}
+          style={styles.backgroundImage}
           imageStyle={{resizeMode: 'stretch'}}
-          source={require('../../assets/img/portada.png')}></ImageBackground>
+          source={require('../../assets/img/portada.jpg')}
+        />
       </View>
 
-      <View style={[styles.form]}>
+      <View style={styles.form}>
         <Text style={styles.welcomeTitle}>
           Bienvenido a Relevamiento Visual!
         </Text>
@@ -104,7 +102,7 @@ const LoginScreen = ({navigation}) => {
             value={email}
             onChangeText={text => setEmail(text)}
             placeholder="Tu nombre de usuario"
-            placeholderTextColor={AppColors.darklight}
+            placeholderTextColor={AppColors.lightgray}
             style={styles.inputStyle}
           />
         </View>
@@ -112,7 +110,7 @@ const LoginScreen = ({navigation}) => {
         <View style={styles.inputContainer}>
           <TextInput
             placeholder="Tu contraseña"
-            placeholderTextColor={AppColors.darklight}
+            placeholderTextColor={AppColors.lightgray}
             style={styles.inputStyle}
             secureTextEntry={showPasswordValue}
             onChangeText={text => setPassword(text)}
@@ -125,39 +123,39 @@ const LoginScreen = ({navigation}) => {
             }}>
             <FontAwesomeIcon
               icon={faEyeSlash}
-              style={{color: '#888888'}}
+              style={{color: AppColors.lightgray}}
               size={25}
             />
           </TouchableOpacity>
         </View>
 
-        <View style={{justifyContent: 'center', marginTop: 25}}>
+        <View style={styles.buttonContainer}>
           <TouchableOpacity
             style={[
-              AppButton.purple,
+              styles.button,
               !email?.length || !password?.length || isLoading
-                ? AppButton.disabled
-                : '',
+                ? styles.buttonDisabled
+                : null,
             ]}
             onPress={handleLogin}
             disabled={!email?.length || !password?.length || isLoading}>
-            <Text style={AppButton.text}>Ingresar</Text>
+            <Text style={styles.buttonText}>Ingresar</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={[{marginTop: 10}, AppButton.purple]}
+            style={[styles.button, {marginTop: 10}]}
             onPress={() =>
               navigation.navigate('Register', {navigation: navigation})
             }
             disabled={isLoading}>
-            <Text style={AppButton.text}>Crear Cuenta</Text>
+            <Text style={styles.buttonText}>Crear Cuenta</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={[{marginTop: 10}, AppButton.purple]}
+            style={[styles.button, {marginTop: 10}]}
             onPress={() => easyLogin()}
             disabled={isLoading}>
-            <Text style={AppButton.text}>Inicio rápido</Text>
+            <Text style={styles.buttonText}>Inicio rápido</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -168,67 +166,70 @@ const LoginScreen = ({navigation}) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#2C2C2C', // Fondo oscuro
+    backgroundColor: AppColors.primary,
   },
   form: {
-    backgroundColor: '#1A1A40', // Fondo del formulario oscuro
     flex: 1,
-    paddingTop: 10,
+    paddingTop: 20,
     paddingHorizontal: 30,
-    borderRadius: 15,
+    borderTopLeftRadius: 30,
+    borderTopRightRadius: 30,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
   },
   inputContainer: {
     borderBottomWidth: 1,
-    borderColor: '#4A5EB8', // Borde azul tenue
+    borderColor: AppColors.lightgray,
     backgroundColor: 'transparent',
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 20,
   },
   inputStyle: {
-    color: '#D9D9D9', // Texto gris claro
+    color: AppColors.white,
     paddingRight: 5,
-    fontSize: 20,
-    alignSelf: 'stretch',
+    fontSize: 18,
     flex: 1,
-    lineHeight: 25,
-    paddingTop: 16,
-    paddingBottom: 12,
+    paddingVertical: 10,
   },
   welcomeTitle: {
     textAlign: 'center',
-    fontSize: 24,
-    marginTop: 12,
-    marginBottom: 25,
-    color: '#AAB2FF', // Azul claro para destacar el título
+    fontSize: 28,
+    fontWeight: 'bold',
+    marginTop: 20,
+    marginBottom: 30,
+    color: AppColors.white,
   },
   btnShowPassword: {
-    width: 30,
-    height: 30,
-    alignItems: 'center',
-    justifyContent: 'center',
+    padding: 10,
   },
   titleContainer: {
-    height: 200,
+    height: 220,
     width: '100%',
-    transform: [{scaleX: 2}],
-    borderBottomStartRadius: 200,
-    borderBottomEndRadius: 200,
     overflow: 'hidden',
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#7B61FF', // Morado vibrante
   },
-  buttonStyle: {
-    backgroundColor: '#7B61FF', // Botón morado vibrante
+  backgroundImage: {
+    width: '200%',
+    height: '100%',
+    transform: [{scaleX: 0.5}],
+  },
+  buttonContainer: {
+    marginTop: 30,
+  },
+  button: {
+    backgroundColor: AppColors.secondary,
     borderRadius: 25,
     paddingVertical: 15,
-    marginBottom: 15,
+    alignItems: 'center',
+  },
+  buttonDisabled: {
+    opacity: 0.6,
   },
   buttonText: {
-    color: '#D9D9D9', // Texto gris claro en los botones
-    textAlign: 'center',
+    color: AppColors.white,
     fontSize: 18,
+    fontWeight: 'bold',
   },
 });
 

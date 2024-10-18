@@ -186,6 +186,7 @@ const CosasLindasScreen = ({navigation}) => {
           <>
             {confirmedImages.length > 0 ? (
               <SensorPhotoGallery
+                text={'Cosas Lindas'}
                 photos={confirmedImages}
                 onVote={handleVote}
               />
@@ -222,14 +223,14 @@ const CosasLindasScreen = ({navigation}) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#120E29',
+    backgroundColor: AppColors.primary,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: 10,
-    backgroundColor: AppColors.purple,
+    backgroundColor: AppColors.darkGreen,
   },
   content: {
     flex: 1,
@@ -279,7 +280,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 20,
     right: 20,
-    backgroundColor: AppColors.purple,
+    backgroundColor: AppColors.secondary,
     width: 60,
     height: 60,
     borderRadius: 30,
@@ -301,7 +302,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 20,
     alignSelf: 'center',
-    backgroundColor: AppColors.purple,
+    backgroundColor: AppColors.secondary,
     padding: 10,
     borderRadius: 5,
   },
@@ -313,7 +314,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#120E29',
+    backgroundColor: AppColors.primary,
   },
   pendingImageContainer: {
     width: '100%',

@@ -42,7 +42,7 @@ const HomeScreen = () => {
             style={styles.iconMenu}
           />
         </TouchableOpacity>
-        <Text style={styles.headerText}>Relevamiento Visual</Text>
+        <Text style={styles.headerText}>Visualizador Kinético</Text>
         <TouchableOpacity onPress={handleUserPhotos}>
           <FontAwesomeIcon icon={faUser} size={20} style={styles.iconMenu} />
         </TouchableOpacity>
@@ -50,7 +50,7 @@ const HomeScreen = () => {
       <View style={styles.buttonContainer}>
         <TouchableOpacity style={styles.button} onPress={handleCosasLindas}>
           <ImageBackground
-            source={require('../../assets/img/cosas_lindas.png')}
+            source={require('../../assets/img/portada.jpg')}
             style={styles.buttonBackground}
             resizeMode="cover">
             <Text style={styles.buttonText}>Cosas Lindas</Text>
@@ -58,7 +58,7 @@ const HomeScreen = () => {
         </TouchableOpacity>
         <TouchableOpacity style={styles.button} onPress={handleCosasFeas}>
           <ImageBackground
-            source={require('../../assets/img/cosas_feas.png')}
+            source={require('../../assets/img/cosas_feas.jpg')}
             style={styles.buttonBackground}
             resizeMode="cover">
             <Text style={styles.buttonText}>Cosas Feas</Text>
@@ -72,14 +72,14 @@ const HomeScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: AppColors.darkBackground,
+    backgroundColor: AppColors.primary,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: 15,
-    backgroundColor: AppColors.headerBackground,
+    backgroundColor: AppColors.darkGreen,
   },
   headerText: {
     color: AppColors.white,
@@ -96,7 +96,7 @@ const styles = StyleSheet.create({
   button: {
     flex: 1,
     borderWidth: 5,
-    borderColor: '#4A90E2',
+    borderColor: AppColors.background,
     borderTopWidth: 2, // Aumentamos el grosor del borde superior
     borderBottomWidth: 2,
   },
@@ -106,15 +106,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   buttonText: {
-    fontSize: 45,
+    fontSize: 80,
+    textAlign: 'center',
     fontWeight: 'bold',
-    color: 'yellow', //AppColors.white,
+    color: AppColors.darkGreen,
     textShadowColor: 'rgba(0, 0, 0, 1)',
     textShadowOffset: {width: -1, height: 1},
     textShadowRadius: 5,
     // Añadimos múltiples sombras para crear un efecto de contorno
     textShadowOffset: {width: -2, height: -2},
-    textShadowColor: '#000',
+    textShadowColor: '#fff',
     textShadowRadius: 1,
   },
 });
