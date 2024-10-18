@@ -187,7 +187,7 @@ const CosasLindasScreen = ({navigation}) => {
       </TouchableOpacity>
 
       <Modal visible={showGallery} animationType="slide">
-        <SensorPhotoGallery photos={confirmedImages} />
+        <SensorPhotoGallery photos={confirmedImages} onVote={handleVote} />
         <TouchableOpacity style={styles.closeButton} onPress={toggleGallery}>
           <Text style={styles.closeButtonText}>Cerrar</Text>
         </TouchableOpacity>
