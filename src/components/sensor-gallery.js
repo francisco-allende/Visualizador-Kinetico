@@ -37,6 +37,12 @@ const SensorPhotoGallery = ({photos, onVote}) => {
         setIsLoading(true);
         setCurrentIndex(prevIndex => (prevIndex + 1) % photos.length);
         break;
+      case 'horizontal':
+        setIsLoading(true);
+        setCurrentIndex(0);
+
+        // Mantener la posición actual para vertical y horizontal
+        break;
     }
 
     setLastOrientation(orientation);
