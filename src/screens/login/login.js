@@ -21,6 +21,12 @@ import {AuthContext} from '../../utils/auth.context';
 import useAuthenticationApi from '../../api/authentication';
 import showToast from '../../functions/showToast';
 import auth from '@react-native-firebase/auth';
+import {
+  faUser,
+  faUserSecret,
+  faFlask,
+  faDoorOpen,
+} from '@fortawesome/free-solid-svg-icons';
 
 const LoginScreen = ({navigation}) => {
   const {signIn} = useContext(AuthContext);
@@ -77,8 +83,8 @@ const LoginScreen = ({navigation}) => {
     await doLogin();
   };
 
-  const easyLogin = async () => {
-    await auth().signInWithEmailAndPassword('test@yopmail.com', '12345678');
+  const easyLogin = async userEmail => {
+    await auth().signInWithEmailAndPassword(userEmail, '12345678');
     navigation.navigate('Home');
   };
 
@@ -94,7 +100,7 @@ const LoginScreen = ({navigation}) => {
 
       <View style={styles.form}>
         <Text style={styles.welcomeTitle}>
-          Bienvenido a Relevamiento Visual!
+          Bienvenido a Visualizador Kinético!
         </Text>
 
         <View style={styles.inputContainer}>
@@ -130,34 +136,79 @@ const LoginScreen = ({navigation}) => {
         </View>
 
         <View style={styles.buttonContainer}>
-          <TouchableOpacity
-            style={[
-              styles.button,
-              !email?.length || !password?.length || isLoading
-                ? styles.buttonDisabled
-                : null,
-            ]}
-            onPress={handleLogin}
-            disabled={!email?.length || !password?.length || isLoading}>
-            <Text style={styles.buttonText}>Ingresar</Text>
-          </TouchableOpacity>
+          <View style={styles.leftFloatingButtons}>
+            <TouchableOpacity
+              style={[
+                styles.quickLoginButton,
+                styles.loginButton,
+                !email?.length || !password?.length || isLoading
+                  ? styles.buttonDisabled
+                  : null,
+              ]}
+              onPress={handleLogin}
+              disabled={!email?.length || !password?.length || isLoading}>
+              <View style={styles.iconContainer}>
+                <FontAwesomeIcon
+                  icon={faDoorOpen}
+                  size={20}
+                  color={AppColors.white}
+                />
+              </View>
+              <Text style={styles.quickLoginText}>Ingresar</Text>
+            </TouchableOpacity>
 
-          <TouchableOpacity
-            style={[styles.button, {marginTop: 10}]}
-            onPress={() =>
-              navigation.navigate('Register', {navigation: navigation})
-            }
-            disabled={isLoading}>
-            <Text style={styles.buttonText}>Crear Cuenta</Text>
-          </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.quickLoginButton, styles.anonimoButton]}
+              onPress={() => easyLogin('anonimo@yopmail.com')}>
+              <View style={styles.iconContainer}>
+                <FontAwesomeIcon
+                  icon={faUserSecret}
+                  size={20}
+                  color={AppColors.white}
+                />
+              </View>
+              <Text style={styles.quickLoginText}>Anónimo</Text>
+            </TouchableOpacity>
+          </View>
 
-          <TouchableOpacity
-            style={[styles.button, {marginTop: 10}]}
-            onPress={() => easyLogin()}
-            disabled={isLoading}>
-            <Text style={styles.buttonText}>Inicio rápido</Text>
-          </TouchableOpacity>
+          {/* Botones flotantes derechos */}
+          <View style={styles.rightFloatingButtons}>
+            <TouchableOpacity
+              style={[styles.quickLoginButton, styles.testerButton]}
+              onPress={() => easyLogin('tester@yopmail.com')}>
+              <View style={styles.iconContainer}>
+                <FontAwesomeIcon
+                  icon={faFlask}
+                  size={20}
+                  color={AppColors.white}
+                />
+              </View>
+              <Text style={styles.quickLoginText}>Tester</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.quickLoginButton, styles.adminButton]}
+              onPress={() => easyLogin('adminuno@yopmail.com')}>
+              <View style={styles.iconContainer}>
+                <FontAwesomeIcon
+                  icon={faUser}
+                  size={20}
+                  color={AppColors.white}
+                />
+              </View>
+              <Text style={styles.quickLoginText}>Admin</Text>
+            </TouchableOpacity>
+          </View>
         </View>
+
+        <TouchableOpacity
+          style={styles.createAccountButton}
+          onPress={() =>
+            navigation.navigate('Register', {navigation: navigation})
+          }
+          disabled={isLoading}>
+          <Text style={styles.buttonText}>Crear Cuenta</Text>
+        </TouchableOpacity>
       </View>
     </View>
   );
@@ -216,6 +267,8 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     marginTop: 30,
+    position: 'relative',
+    height: 200, // Dar espacio para los botones flotantes
   },
   button: {
     backgroundColor: AppColors.secondary,
@@ -230,6 +283,82 @@ const styles = StyleSheet.create({
     color: AppColors.white,
     fontSize: 18,
     fontWeight: 'bold',
+  },
+  // Botones flotantes izquierdos
+  leftFloatingButtons: {
+    position: 'absolute',
+    left: -20,
+    top: '20%',
+    transform: [{translateY: -50}],
+    gap: 15,
+  },
+  // Botones flotantes derechos
+  rightFloatingButtons: {
+    position: 'absolute',
+    right: -20,
+    top: '20%',
+    transform: [{translateY: -50}],
+    gap: 15,
+  },
+  quickLoginButton: {
+    width: 175,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    borderRadius: 25,
+    elevation: 8,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 4.65,
+  },
+  iconContainer: {
+    width: 35,
+    height: 35,
+    borderRadius: 17.5,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 8,
+  },
+  loginButton: {
+    backgroundColor: AppColors.secondary,
+    borderWidth: 1,
+    borderColor: '#6B7FD7',
+  },
+  adminButton: {
+    backgroundColor: AppColors.darkGreen,
+    borderWidth: 1,
+    borderColor: '#6B7FD7',
+  },
+  anonimoButton: {
+    backgroundColor: '#6B4E71',
+    borderWidth: 1,
+    borderColor: '#8B6E91',
+  },
+  testerButton: {
+    backgroundColor: '#557A95',
+    borderWidth: 1,
+    borderColor: '#7599B4',
+  },
+  quickLoginText: {
+    color: AppColors.white,
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  createAccountButton: {
+    backgroundColor: AppColors.secondary,
+    borderRadius: 25,
+    paddingVertical: 15,
+    alignItems: 'center',
+    position: 'absolute',
+    bottom: 30,
+    left: 30,
+    right: 30,
   },
 });
 

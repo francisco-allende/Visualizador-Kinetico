@@ -10,7 +10,7 @@ import {
 import {AuthContext} from '../../utils/auth.context';
 import {useNavigation} from '@react-navigation/native';
 import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
-import {faSignOutAlt, faUser} from '@fortawesome/free-solid-svg-icons';
+import {faUserCircle, faDoorOpen} from '@fortawesome/free-solid-svg-icons';
 import AppContainer from '../../assets/app-container/container';
 import {AppColors} from '../../assets/styles/default-styles';
 
@@ -37,14 +37,18 @@ const HomeScreen = () => {
       <View style={styles.header}>
         <TouchableOpacity onPress={handleLogOut}>
           <FontAwesomeIcon
-            icon={faSignOutAlt}
-            size={20}
+            icon={faDoorOpen}
+            size={25}
             style={styles.iconMenu}
           />
         </TouchableOpacity>
         <Text style={styles.headerText}>Visualizador Kinético</Text>
         <TouchableOpacity onPress={handleUserPhotos}>
-          <FontAwesomeIcon icon={faUser} size={20} style={styles.iconMenu} />
+          <FontAwesomeIcon
+            icon={faUserCircle}
+            size={25}
+            style={styles.iconMenu}
+          />
         </TouchableOpacity>
       </View>
       <View style={styles.buttonContainer}>

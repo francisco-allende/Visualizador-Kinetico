@@ -1,5 +1,6 @@
 import React, {useEffect} from 'react';
 import {View, Text, Image, StyleSheet} from 'react-native';
+import {AppColors} from '../../assets/styles/default-styles';
 
 const SplashScreen = ({navigation}) => {
   useEffect(() => {
@@ -14,7 +15,7 @@ const SplashScreen = ({navigation}) => {
     <View style={styles.container}>
       <View style={styles.topSection}>
         <Image
-          source={require('../../assets/img/icono.png')}
+          source={require('../../assets/img/icono-transparente-vk.png')}
           style={styles.icon}
         />
         <Text style={styles.title}>Visualizador Kinético</Text>
@@ -32,7 +33,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: '#3F3C9B',
+    backgroundColor: AppColors.darkGreen,
     paddingVertical: 50,
   },
   topSection: {

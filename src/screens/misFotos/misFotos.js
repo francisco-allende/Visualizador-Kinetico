@@ -6,12 +6,15 @@ import {
   Image,
   StyleSheet,
   ActivityIndicator,
+  Dimensions,
 } from 'react-native';
 import firestore from '@react-native-firebase/firestore';
 import {useAuthContext} from '../../utils/auth.context';
 import GoBackScreen from '../../components/go-back';
 import {AppColors} from '../../assets/styles/default-styles';
 import {format} from 'date-fns';
+
+const {width} = Dimensions.get('window');
 
 const MisFotosScreen = ({navigation}) => {
   const [photos, setPhotos] = useState([]);
@@ -41,10 +44,9 @@ const MisFotosScreen = ({navigation}) => {
         console.error('Error al obtener las fotos: ', error);
       } finally {
         setLoading(false);
-        // Esperar un poco antes de mostrar el mensaje de "no hay fotos"
         setTimeout(() => {
           setShowNoPhotosMessage(true);
-        }, 1000); // Espera 1 segundo
+        }, 1000);
       }
     };
 
@@ -77,11 +79,19 @@ const MisFotosScreen = ({navigation}) => {
       </View>
       <View style={styles.photoInfoContainer}>
         <Text style={styles.photoInfoText}>
-          Sección: {item.tipo === 'linda' ? 'Linda' : 'Fea'}
+          Sección:{' '}
+          <Text style={styles.highlightText}>
+            {item.tipo === 'linda' ? 'Linda' : 'Fea'}
+          </Text>
         </Text>
-        <Text style={styles.photoInfoText}>Votos: {item.votes || 0}</Text>
         <Text style={styles.photoInfoText}>
-          Fecha: {format(item.createdAt.toDate(), 'dd/MM/yyyy HH:mm:ss')}
+          Votos: <Text style={styles.highlightText}>{item.votes || 0}</Text>
+        </Text>
+        <Text style={styles.photoInfoText}>
+          Fecha:{' '}
+          <Text style={styles.highlightText}>
+            {format(item.createdAt.toDate(), 'dd/MM/yyyy HH:mm:ss')}
+          </Text>
         </Text>
       </View>
     </View>
@@ -118,28 +128,39 @@ const MisFotosScreen = ({navigation}) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#2A2A5A',
+    backgroundColor: AppColors.primary,
   },
   title: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: 'bold',
     color: AppColors.white,
     textAlign: 'center',
     marginVertical: 20,
+    textShadowColor: 'rgba(0, 0, 0, 0.75)',
+    textShadowOffset: {width: -1, height: 1},
+    textShadowRadius: 10,
   },
   photoList: {
     padding: 16,
   },
   photoItem: {
-    backgroundColor: AppColors.darkgray,
-    borderRadius: 10,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    borderRadius: 15,
     marginBottom: 20,
     overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
   photoContainer: {
     position: 'relative',
     width: '100%',
-    height: 200,
+    height: width * 0.6,
   },
   loader: {
     position: 'absolute',
@@ -149,33 +170,39 @@ const styles = StyleSheet.create({
     bottom: 0,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.3)',
   },
   photo: {
     width: '100%',
     height: '100%',
-    borderTopLeftRadius: 10,
-    borderTopRightRadius: 10,
+    borderTopLeftRadius: 15,
+    borderTopRightRadius: 15,
   },
   photoInfoContainer: {
-    padding: 10,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)', // Fondo semi-transparente para el contenedor de información
+    padding: 15,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   photoInfoText: {
-    color: 'yellow',
-    fontSize: 18,
+    color: AppColors.lightgray,
+    fontSize: 16,
     marginBottom: 5,
+  },
+  highlightText: {
+    color: AppColors.white,
+    fontWeight: 'bold',
   },
   noPhotosText: {
     textAlign: 'center',
     fontSize: 18,
     marginTop: 20,
     color: AppColors.white,
+    fontStyle: 'italic',
   },
   loaderContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#120E29',
+    backgroundColor: AppColors.primary,
   },
 });
 
