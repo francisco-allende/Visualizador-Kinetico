@@ -129,6 +129,11 @@ const SensorPhotoGallery = ({photos, onVote, text}) => {
                 'dd/MM/yyyy HH:mm:ss',
               )}
             </Text>
+            <View style={styles.counterContainer}>
+              <Text style={styles.counterText}>
+                {currentIndex + 1} / {photos.length}
+              </Text>
+            </View>
             <Text style={styles.voteCount}>
               Votos: {photos[currentIndex].votes || 0}
             </Text>
@@ -202,6 +207,22 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  //contador
+  counterContainer: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 15,
+    zIndex: 10,
+  },
+  counterText: {
+    color: AppColors.white,
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 });
 
