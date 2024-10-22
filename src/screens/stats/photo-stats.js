@@ -25,6 +25,7 @@ const PhotoStats = ({type}) => {
   const [data, setData] = useState([]);
   const [selectedPhoto, setSelectedPhoto] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [wasShown, setWasShown] = useState(false);
 
   useEffect(() => {
     fetchTopPhotos();
@@ -68,11 +69,32 @@ const PhotoStats = ({type}) => {
     setSelectedPhoto(null);
   };
 
+  const handleSelectMostVoted = () => {
+    if (data.length > 0) {
+      const mostVoted = data.reduce((prev, current) =>
+        prev.y > current.y ? prev : current,
+      );
+      setSelectedPhoto(mostVoted);
+      console.log(mostVoted);
+    }
+  };
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      if (data.length > 0 && !wasShown) {
+        handleSelectMostVoted();
+        setWasShown(true);
+      }
+    }, 3000);
+
+    return () => clearInterval(timer);
+  }, [data, wasShown]);
+
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>{`Top 5 Fotos ${
+      <Text style={styles.title}>{`5 Fotos ${
         type === 'linda' ? 'Lindas' : 'Feas'
-      }`}</Text>
+      } más votadas`}</Text>
       {type === 'linda' ? (
         <VictoryPie
           data={data}
@@ -225,7 +247,7 @@ const styles = StyleSheet.create({
   closeButton: {
     marginTop: 10,
     padding: 10,
-    backgroundColor: AppColors.purple,
+    backgroundColor: AppColors.primary,
     borderRadius: 5,
   },
   closeButtonText: {
